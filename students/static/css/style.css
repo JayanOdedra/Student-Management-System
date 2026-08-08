@@ -1,0 +1,29 @@
+/* static/css/style.css - Extra styles for Student Management System */
+
+/* Smooth fade-in for cards */
+.card {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Table row hover highlight */
+.table-hover tbody tr {
+    cursor: default;
+    transition: background-color 0.15s;
+}
+
+/* Form focus ring */
+.form-control:focus {
+    border-color: #3949ab;
+    box-shadow: 0 0 0 0.2rem rgba(57, 73, 171, 0.25);
+}
+
+/* Alert auto-dismiss spacing */
+.alert { border-radius: 10px; }
+
+/* Badge style for course column */
+.table .badge { font-size: 0.82rem; padding: 5px 10px; }
