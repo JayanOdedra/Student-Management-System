@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+{% block title %}Students - SMS{% endblock %}
+{% block page_title %}All Students{% endblock %}
+{% block nav_students %}active{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h4 class="mb-1"><i class="bi bi-people me-2"></i>All Students</h4>
+        <p class="text-muted mb-0">{{ total }} student{{ total|pluralize }} found</p>
+    </div>
+    <a href="{% url 'student_add' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus me-1"></i>Add Student
+    </a>
+</div>
+
+<!-- Search & Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" action="{% url 'student_list' %}">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <div class="input-group">
+                        <span class="input-group-text"><i class="bi bi-search"></i></span>
+                        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by name, email, or ID...">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <select name="course" class="form-select">
+                        <option value="">All Courses</option>
+                        {% for c in courses %}
+                        <option value="{{ c.pk }}" {% if course_filter == c.pk|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <input type="text" name="department" value="{{ dept_filter }}" class="form-control" placeholder="Department">
+                </div>
+                <div class="col-md-2">
+                    <select name="semester" class="form-select">
+                        <option value="">All Semesters</option>
+                        {% for s in semesters %}
+                        <option value="{{ s }}" {% if sem_filter == s %}selected{% endif %}>Semester {{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-1">
+                    <select name="status" class="form-select">
+                        <option value="">Status</option>
+                        <option value="Active" {% if status_filter == 'Active' %}selected{% endif %}>Active</option>
+                        <option value="Inactive" {% if status_filter == 'Inactive' %}selected{% endif %}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-md-1 d-flex gap-1">
+                    <button type="submit" class="btn btn-primary flex-fill"><i class="bi bi-funnel"></i></button>
+                    <a href="{% url 'student_list' %}" class="btn btn-outline-secondary flex-fill"><i class="bi bi-x"></i></a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Table -->
+<div class="card">
+    <div class="card-body p-0">
+        {% if page_obj %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>Sem</th>
+                        <th>Status</th>
+                        <th class="text-center">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in page_obj %}
+                    <tr>
+                        <td><span class="badge bg-secondary">{{ student.student_id }}</span></td>
+                        <td class="fw-semibold">{{ student.full_name }}</td>
+                        <td class="text-muted small">{{ student.email }}</td>
+                        <td>{{ student.course.name }}</td>
+                        <td>{{ student.semester }}</td>
+                        <td>
+                            {% if student.status == 'Active' %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'student_detail' student.pk %}" class="btn btn-sm btn-outline-info me-1" title="View"><i class="bi bi-eye"></i></a>
+                            <a href="{% url 'student_edit' student.pk %}" class="btn btn-sm btn-outline-success me-1" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <button class="btn btn-sm btn-outline-danger" title="Delete"
+                                data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                data-pk="{{ student.pk }}" data-name="{{ student.full_name }}">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <div class="d-flex justify-content-center py-3">
+            <nav>
+                <ul class="pagination pagination-sm mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.previous_page_number }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% for num in page_obj.paginator.page_range %}
+                    <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                        <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endfor %}
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if q %}q={{ q }}&{% endif %}page={{ page_obj.next_page_number }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1"></i>
+            <p class="mt-2 mb-1 fw-semibold">No students found.</p>
+            {% if q %}<p class="small"><a href="{% url 'student_list' %}">Clear search</a></p>{% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Delete Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-person-x-fill text-danger fs-1"></i>
+                <p class="mt-3 mb-0">Delete <strong id="modalName"></strong>?</p>
+                <p class="text-muted small">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <form id="deleteForm" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-trash me-1"></i>Delete</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('deleteModal').addEventListener('show.bs.modal', function(e) {
+    const btn = e.relatedTarget;
+    document.getElementById('modalName').textContent = btn.dataset.name;
+    document.getElementById('deleteForm').action = '/students/' + btn.dataset.pk + '/delete/';
+});
+</script>
+{% endblock %}

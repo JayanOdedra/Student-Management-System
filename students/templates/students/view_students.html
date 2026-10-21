@@ -1,0 +1,164 @@
+<!-- view_students.html - Display all students in a responsive table with search -->
+{% extends 'students/base.html' %}
+
+{% block title %}View Students - SMS{% endblock %}
+{% block nav_view %}active{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header text-center">
+    <div class="container">
+        <h2><i class="bi bi-people-fill me-2"></i>All Students</h2>
+        <p>Browse and manage all enrolled student records.</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+
+    <!-- Search Bar + Add Button Row -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center mb-4 gap-3">
+
+        <!-- Search Form -->
+        <form method="GET" action="{% url 'view_students' %}" class="d-flex gap-2" style="max-width:420px; width:100%;">
+            <input
+                type="text"
+                name="q"
+                value="{{ query }}"
+                class="form-control"
+                placeholder="Search by ID or Name..."
+            >
+            <button type="submit" class="btn btn-primary px-3">
+                <i class="bi bi-search"></i>
+            </button>
+            {% if query %}
+            <a href="{% url 'view_students' %}" class="btn btn-outline-secondary px-3" title="Clear search">
+                <i class="bi bi-x-lg"></i>
+            </a>
+            {% endif %}
+        </form>
+
+        <!-- Add Student Button -->
+        <a href="{% url 'add_student' %}" class="btn btn-success">
+            <i class="bi bi-person-plus me-1"></i>Add Student
+        </a>
+    </div>
+
+    <!-- Result count badge -->
+    <p class="text-muted mb-3 small">
+        Showing <strong>{{ total }}</strong> student{{ total|pluralize }}
+        {% if query %} matching "<strong>{{ query }}</strong>"{% endif %}
+    </p>
+
+    <!-- Students Table -->
+    <div class="card">
+        <div class="card-body p-0">
+            {% if students %}
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered mb-0 align-middle">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width:80px;">#ID</th>
+                            <th><i class="bi bi-person me-1"></i>Name</th>
+                            <th class="text-center" style="width:80px;">Age</th>
+                            <th><i class="bi bi-book me-1"></i>Course</th>
+                            <th><i class="bi bi-phone me-1"></i>Mobile</th>
+                            <th class="text-center" style="width:140px;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td class="text-center fw-bold text-primary">{{ student.id }}</td>
+                            <td class="fw-semibold">{{ student.name }}</td>
+                            <td class="text-center">{{ student.age }}</td>
+                            <td>
+                                <span class="badge rounded-pill text-bg-primary">{{ student.course }}</span>
+                            </td>
+                            <td>{{ student.mobile }}</td>
+                            <td class="text-center">
+                                <!-- Edit Button -->
+                                <a href="{% url 'update_student' student.pk %}"
+                                   class="btn btn-sm btn-outline-success me-1"
+                                   title="Edit">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                <!-- Delete Button (triggers modal) -->
+                                <button type="button"
+                                        class="btn btn-sm btn-outline-danger"
+                                        title="Delete"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#deleteModal"
+                                        data-student-id="{{ student.pk }}"
+                                        data-student-name="{{ student.name }}">
+                                    <i class="bi bi-trash-fill"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <!-- Empty State -->
+            <div class="text-center py-5 text-muted">
+                <i class="bi bi-inbox" style="font-size:3rem;"></i>
+                <p class="mt-3 mb-1 fw-semibold fs-5">No students found.</p>
+                {% if query %}
+                    <p class="small">No results for "{{ query }}". <a href="{% url 'view_students' %}">Clear search</a></p>
+                {% else %}
+                    <p class="small">Start by <a href="{% url 'add_student' %}">adding a student</a>.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="bi bi-exclamation-triangle me-2"></i>Confirm Delete</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <i class="bi bi-person-x-fill text-danger" style="font-size:3rem;"></i>
+                <p class="mt-3 mb-0 fs-5">
+                    Are you sure you want to delete<br>
+                    <strong id="modalStudentName"></strong>?
+                </p>
+                <p class="text-muted small mt-1">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle me-1"></i>Cancel
+                </button>
+                <form id="deleteForm" method="POST" action="">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Yes, Delete
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Populate delete modal with the correct student name and form action
+    const deleteModal = document.getElementById('deleteModal');
+    deleteModal.addEventListener('show.bs.modal', function (event) {
+        const btn = event.relatedTarget;
+        const studentId = btn.getAttribute('data-student-id');
+        const studentName = btn.getAttribute('data-student-name');
+        document.getElementById('modalStudentName').textContent = studentName;
+        document.getElementById('deleteForm').action = '/delete/' + studentId + '/';
+    });
+</script>
+{% endblock %}

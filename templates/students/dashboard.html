@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard - SMS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block nav_dashboard %}active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h4 class="mb-1"><i class="bi bi-speedometer2 me-2"></i>Dashboard</h4>
+    <p class="text-muted mb-0">Welcome back, <strong>{{ user.get_full_name|default:user.username }}</strong></p>
+</div>
+
+<!-- Stat Cards -->
+<div class="row g-4 mb-4">
+    <div class="col-sm-6 col-xl-4">
+        <div class="stat-card card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon bg-primary-soft text-primary">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-number">{{ total_students }}</div>
+                    <div class="stat-label">Total Students</div>
+                </div>
+            </div>
+            <a href="{% url 'student_list' %}" class="stat-footer">View all students <i class="bi bi-arrow-right"></i></a>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-4">
+        <div class="stat-card card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon bg-success-soft text-success">
+                    <i class="bi bi-person-check-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-number">{{ active_students }}</div>
+                    <div class="stat-label">Active Students</div>
+                </div>
+            </div>
+            <a href="{% url 'student_list' %}?status=Active" class="stat-footer">View active <i class="bi bi-arrow-right"></i></a>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-4">
+        <div class="stat-card card h-100">
+            <div class="card-body d-flex align-items-center gap-3">
+                <div class="stat-icon bg-warning-soft text-warning">
+                    <i class="bi bi-book-fill"></i>
+                </div>
+                <div>
+                    <div class="stat-number">{{ total_courses }}</div>
+                    <div class="stat-label">Total Courses</div>
+                </div>
+            </div>
+            <a href="{% url 'course_list' %}" class="stat-footer">Manage courses <i class="bi bi-arrow-right"></i></a>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Actions -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header"><h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h6></div>
+            <div class="card-body d-flex flex-wrap gap-2">
+                <a href="{% url 'student_add' %}" class="btn btn-primary"><i class="bi bi-person-plus me-1"></i>Add Student</a>
+                <a href="{% url 'student_list' %}" class="btn btn-outline-primary"><i class="bi bi-people me-1"></i>View Students</a>
+                <a href="{% url 'course_add' %}" class="btn btn-success"><i class="bi bi-plus-circle me-1"></i>Add Course</a>
+                <a href="{% url 'course_list' %}" class="btn btn-outline-success"><i class="bi bi-book me-1"></i>View Courses</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Latest Students -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h6 class="mb-0"><i class="bi bi-clock-history me-2"></i>Latest Registered Students</h6>
+        <a href="{% url 'student_list' %}" class="btn btn-sm btn-outline-primary">View All</a>
+    </div>
+    <div class="card-body p-0">
+        {% if latest_students %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Semester</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in latest_students %}
+                    <tr>
+                        <td><span class="badge bg-secondary">{{ s.student_id }}</span></td>
+                        <td class="fw-semibold">{{ s.full_name }}</td>
+                        <td>{{ s.course.name }}</td>
+                        <td>Sem {{ s.semester }}</td>
+                        <td>
+                            {% if s.status == 'Active' %}
+                            <span class="badge bg-success">Active</span>
+                            {% else %}
+                            <span class="badge bg-secondary">Inactive</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{% url 'student_detail' s.pk %}" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1"></i>
+            <p class="mt-2">No students yet. <a href="{% url 'student_add' %}">Add the first one</a>.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

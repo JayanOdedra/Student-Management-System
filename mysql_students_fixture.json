@@ -1,0 +1,32 @@
+[
+  {
+    "model": "students.student",
+    "pk": 1,
+    "fields": {
+      "name": "Vijay Chitariya",
+      "age": 18,
+      "course": "be",
+      "mobile": "9879449382"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 2,
+    "fields": {
+      "name": "Jayan Odedra",
+      "age": 20,
+      "course": "BE",
+      "mobile": "9998869392"
+    }
+  },
+  {
+    "model": "students.student",
+    "pk": 3,
+    "fields": {
+      "name": "Rahul Solanki",
+      "age": 32,
+      "course": "BE",
+      "mobile": "9827738455"
+    }
+  }
+]

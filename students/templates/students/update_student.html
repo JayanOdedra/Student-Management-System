@@ -1,0 +1,103 @@
+<!-- update_student.html - Edit existing student record -->
+{% extends 'students/base.html' %}
+
+{% block title %}Update Student - SMS{% endblock %}
+
+{% block content %}
+
+<!-- Page Header -->
+<div class="page-header text-center">
+    <div class="container">
+        <h2><i class="bi bi-pencil-square me-2"></i>Update Student</h2>
+        <p>Modify the details below and save to update the record.</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card">
+                <div class="card-header text-white" style="background:#1a237e;">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person-gear me-2"></i>
+                        Editing: <strong>{{ student.name }}</strong>
+                        <span class="badge bg-light text-dark ms-2">ID #{{ student.id }}</span>
+                    </h5>
+                </div>
+                <div class="card-body p-4">
+
+                    <form method="POST" novalidate>
+                        {% csrf_token %}
+
+                        <!-- Student Name -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-person me-1 text-primary"></i>Student Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.name.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Age -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-calendar me-1 text-primary"></i>Age <span class="text-danger">*</span>
+                            </label>
+                            {{ form.age }}
+                            {% if form.age.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.age.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Age must be between 16 and 35.</div>
+                        </div>
+
+                        <!-- Course -->
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-book me-1 text-primary"></i>Course <span class="text-danger">*</span>
+                            </label>
+                            {{ form.course }}
+                            {% if form.course.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.course.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Mobile Number -->
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">
+                                <i class="bi bi-phone me-1 text-primary"></i>Mobile Number <span class="text-danger">*</span>
+                            </label>
+                            {{ form.mobile }}
+                            {% if form.mobile.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.mobile.errors %}{{ error }}{% endfor %}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Enter exactly 10 digits.</div>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex gap-3">
+                            <button type="submit" class="btn btn-primary px-4">
+                                <i class="bi bi-check-circle me-1"></i>Update Student
+                            </button>
+                            <a href="{% url 'view_students' %}" class="btn btn-outline-secondary px-4">
+                                <i class="bi bi-arrow-left me-1"></i>Back
+                            </a>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
